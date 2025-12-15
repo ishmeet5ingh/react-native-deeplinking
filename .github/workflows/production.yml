@@ -1,0 +1,73 @@
+name: Deploy react-native-deeplinking
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # checkout code for repo
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Setup Docker buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Login to DockerHub
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build and push Docker Image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ishmeet2001/react-native-deeplinking:latest
+          platforms: linux/amd64
+          build-args: |
+            VITE_API_URL=${{ env.VITE_API_URL }}
+      
+      # Install Docker on EC2 (Amazon Linux 2023)
+      - name: Install Docker on EC2 instance
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.AWS_FRONTEND_IP }}
+          username: ec2-user # Amazon Linux default user
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            sudo dnf update -y
+            sudo dnf install -y docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker ec2-user
+
+      # Deploy to EC2
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.AWS_FRONTEND_IP }}
+          username: ec2-user
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+            docker stop react-native-deeplinking || true
+            docker rm react-native-deeplinking || true
+            docker pull ishmeet2001/react-native-deeplinking:latest
+            docker run -d -p 80:80 --name react-native-deeplinking \
+              --restart always \
+              -e VITE_API_URL="${{ env.VITE_API_URL }}" \
+              ishmeet2001/react-native-deeplinking:latest
+
