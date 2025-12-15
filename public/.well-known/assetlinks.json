@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.propertydekho247",
+      "sha256_cert_fingerprints": [
+        "AA:C9:35:69:AE:35:62:40:AE:A9:AC:FC:EB:36:97:B6:3F:32:42:97:7B:9B:93:7B:D7:4E:54:0A:0B:5B:76:70"
+      ]
+    }
+  }
+]
