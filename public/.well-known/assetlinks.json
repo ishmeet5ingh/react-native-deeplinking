@@ -8,5 +8,15 @@
         "AA:C9:35:69:AE:35:62:40:AE:A9:AC:FC:EB:36:97:B6:3F:32:42:97:7B:9B:93:7B:D7:4E:54:0A:0B:5B:76:70"
       ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.propertydekho247",
+      "sha256_cert_fingerprints": [
+        "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
+      ]
+    }
   }
 ]
